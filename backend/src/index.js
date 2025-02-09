@@ -8,6 +8,10 @@ dotenv.config();
 const app = express();
 
 const PORT = process.env.PORT;
+
+//使用express.json()中间件，解析请求体中的json数据
+app.use(express.json());
+
 // 当有人访问以 '/api/auth' 开头的网址时，使用 authRoutes 中定义的规则处理
 app.use("/api/auth", authRoutes);
 
