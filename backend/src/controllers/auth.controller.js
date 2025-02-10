@@ -89,15 +89,18 @@ export const updateProfile = async (req, res) => {
   try {
     const { profilePic } = req.body;
     const userId = req.user._id;
+
     if (!profilePic) {
       return res.status(400).json({ message: "请设置头像" });
     }
+
     const uploadResponse = await cloudinary.uploader.upload(profilePic);
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profile: uploadResponse.secure_url },
-      { new: true }
+      { profile: uploadResponse.secure_url }, //上传文件的安全 URL，即使用 HTTPS 协议的文件访问地址。
+      { new: true } //new: true 表示返回更新后的文档
     );
+
     res.status(200).json(updatedUser);
   } catch (error) {
     console.log("Error in updateProfile controller:" + error.message);
