@@ -45,9 +45,71 @@ export const signup = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-export const login = (req, res) => {
-  res.send("login route");
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "用户不存在" });
+    }
+    const isPassWordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPassWordCorrect) {
+      return res.status(400).json({ message: "密码错误" });
+    }
+    generateToken(user._id, res);
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profilePic: user.profilePic,
+    });
+  } catch (error) {
+    console.log("Error in login controller:" + error);
+    res.status(500).json({ message: "Internal Server error" });
+  }
 };
+
 export const logout = (req, res) => {
-  res.send("logout route");
+  try {
+    // 清除cookie
+    // 参数解释：
+    // "jwt": cookie 的名称
+    // "": 将 cookie 值设置为空字符串
+    // { maxAge: 0 }: 配置对象
+    // maxAge: 0 立即使 cookie 过期
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller:" + error.message);
+    res.status(500).json({ message: "Internal Server error" });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilePic } = req.body;
+    const userId = req.user._id;
+    if (!profilePic) {
+      return res.status(400).json({ message: "请设置头像" });
+    }
+    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profile: uploadResponse.secure_url },
+      { new: true }
+    );
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log("Error in updateProfile controller:" + error.message);
+    res.status(500).json({ message: "Internal Server error" });
+  }
+};
+
+export const checkAuth = (req, res) => {
+  try {
+    return res.status(400).json(req.user);
+  } catch (error) {
+    console.log("Error in checkAuth controller:" + error.message);
+    res.status(500).json({ message: "Internal Server error" });
+  }
 };
