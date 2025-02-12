@@ -1,7 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
+import messageRoutes from "./routes/message.route.js";
 import cookieParser from "cookie-parser";
 dotenv.config();
 
@@ -14,8 +16,15 @@ app.use(express.json());
 
 app.use(cookieParser());
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 // 当有人访问以 '/api/auth' 开头的网址时，使用 authRoutes 中定义的规则处理
 app.use("/api/auth", authRoutes);
+app.use("/api/message", messageRoutes);
 
 // 在 5001 端口启动服务器
 app.listen(PORT, () => {
