@@ -22,6 +22,7 @@ app.use(
     credentials: true,
   })
 );
+
 // 当有人访问以 '/api/auth' 开头的网址时，使用 authRoutes 中定义的规则处理
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
