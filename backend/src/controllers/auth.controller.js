@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../lib/utils.js";
+import cloudinary from "../lib/cloudinary.js";
+
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
@@ -97,10 +99,9 @@ export const updateProfile = async (req, res) => {
     const uploadResponse = await cloudinary.uploader.upload(profilePic);
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profile: uploadResponse.secure_url }, //上传文件的安全 URL，即使用 HTTPS 协议的文件访问地址。
+      { profilePic: uploadResponse.secure_url }, //上传文件的安全 URL，即使用 HTTPS 协议的文件访问地址。
       { new: true } //new: true 表示返回更新后的文档
     );
-
     res.status(200).json(updatedUser);
   } catch (error) {
     console.log("Error in updateProfile controller:" + error.message);

@@ -1,4 +1,6 @@
 import User from "../models/user.model.js";
+import Message from "../models/message.model.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const getUserForSideBar = async (req, res) => {
   try {
@@ -20,13 +22,15 @@ export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params; // 从 URL 参数获取聊天对象的用户ID
     const myId = req.user._id; // 获取当前登录用户的 ID
-
+    console.log(userToChatId, myId);
     const messages = await Message.find({
       $or: [
         { senderId: myId, receiverId: userToChatId }, //当前用户发给别人
         { senderId: userToChatId, receiverId: myId }, //别人发给当前用户
       ],
     });
+    console.log("getMessages", messages);
+    res.status(200).json(messages);
   } catch (error) {
     console.log("Error in getMessages controller:", error.message);
     res.status(500).json({ message: "Internal Server error" });

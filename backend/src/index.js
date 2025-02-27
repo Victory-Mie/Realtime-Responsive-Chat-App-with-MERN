@@ -5,6 +5,7 @@ import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import cookieParser from "cookie-parser";
+
 dotenv.config();
 
 const app = express();
@@ -12,13 +13,14 @@ const app = express();
 const PORT = process.env.PORT;
 
 //使用express.json()中间件，解析请求体中的json数据
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 
 app.use(cookieParser());
 
 app.use(
   cors({
     origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"], // 允许的方法
     credentials: true,
   })
 );
