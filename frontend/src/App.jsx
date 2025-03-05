@@ -7,9 +7,7 @@ import SettingPage from "./pages/SettingPage";
 import ProfilePage from "./pages/ProfilePage";
 import { useAuthStore } from "./store/useAuthStore";
 import { Toaster } from "react-hot-toast";
-import { useThemeStore } from "./store/useThemeStore";
-// import { axiosInstance } from "./lib/axios";
-import { useEffect } from "react";
+import { useThemeStore } from "./store/useThemeStore";import { useEffect } from "react";
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();

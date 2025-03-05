@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import { getReceiverSocketID,io } from "../lib/socket.js";
 
 export const getUserForSideBar = async (req, res) => {
   try {
@@ -59,7 +60,12 @@ export const sendMessages = async (req, res) => {
 
     await newMessage.save(); // 存入数据库
 
-    //todo: socket.io 实时传输函数
+    // socket.io 实时传输函数
+    const receiverSocketId = getReceiverSocketID(receiverId);
+    if (receiverId) {
+      io.to(receiverId).emit("newMessage", newMessage);
+    }
+
     res.status(200).json(newMessage);
   } catch (error) {
     console.log("Error in sendMessages controller:", error.message);

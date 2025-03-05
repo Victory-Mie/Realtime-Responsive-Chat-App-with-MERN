@@ -3,6 +3,7 @@ import { axiosInstance } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { io } from "socket.io-client";
 
+const BASE_URL = "http://localhost:5000";
 export const useAuthStore = create((set, get) => ({
   authUser: null,
   isSigningUp: false,
@@ -19,6 +20,7 @@ export const useAuthStore = create((set, get) => ({
 
       //set 用于更新状态（state），相当于 Redux 里的 dispatch，但更简单直接。
       set({ authUser: res.data });
+      get().connectSocket();
     } catch (error) {
       console.log("Error in checkAuth:", error);
       set({ authUser: null });
@@ -32,6 +34,8 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.post("/auth/signup", data);
       set({ authUser: res.data });
       toast.success("注册成功");
+
+      get().connectSocket();
     } catch (error) {
       console.log("Error in signup:", error);
       toast.error(error.response.data.message);
@@ -46,6 +50,8 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
       toast.success("登陆成功");
+
+      get().connectSocket();
     } catch (error) {
       console.log("Error in login:", error);
       toast.error(error.response.data.message);
@@ -59,7 +65,7 @@ export const useAuthStore = create((set, get) => ({
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
       toast.success("Logged out successfully");
-      // get().disconnectSocket();
+      get().disconnectSocket();
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -78,14 +84,27 @@ export const useAuthStore = create((set, get) => ({
       // toast.success("更新完毕");
     }
   },
-  connectSocket: async () => {
-    try {
-      // const socket = io("http://localhost:5000", {
-      //   transports: ["websocket"],
-      // });
-      // set({ socket });
-    } catch (error) {
-      console.log("Error in connecting socket:", error);
+  connectSocket: () => {
+    const { authUser } = get();
+
+    if (!authUser || get().socket?.connected) {
+      return;
     }
+
+    // io 是 socket.io 库提供的函数，用于创建一个 socket 实例，以连接到指定的服务器。
+    // 配置对象中，query 属性用于在连接时向服务器传递查询参数。
+    const socket = io(BASE_URL, {
+      query: {
+        userId: authUser._id,
+      },
+    });
+    socket.connect();
+    set({ socket: socket });
+    socket.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds });
+    });
+  },
+  disconnectSocket: async () => {
+    if (get().socket?.connected) get().socket.disconnect();
   },
 }));
