@@ -70,7 +70,6 @@ const SignUpPage = () => {
       validatePassword() &
       validateRepeatPsw();
     if (success == true) {
-      console.log("校验成功，开始注册");
       signup(formData).then(() => {
         navigate("/");
       });

@@ -49,9 +49,7 @@ const LoginPage = () => {
     e.preventDefault(); // 点击表单的提交按钮会触发表单提交并刷新页面，可以使用 preventDefault() 阻止这个行为：
     const success = validateEmail() & validatePassword();
     if (success == true) {
-      console.log("校验成功，开始登录");
       login(formData).then(() => {
-        console.log("jump to home", navigate);
         navigate("/");
       });
     }
