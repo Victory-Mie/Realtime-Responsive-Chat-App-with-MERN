@@ -19,7 +19,7 @@ const ChatHeader = () => {
             {selectedUser.fullName}
           </div>
           <div className="text-sm text-base-content/80">
-            {onlineUsers?._id == selectedUser?._id ? "在线" : "离线"}
+            {onlineUsers.includes(selectedUser?._id) ? "在线" : "离线"}
           </div>
         </div>
         {/* Close button */}

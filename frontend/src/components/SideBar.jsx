@@ -28,7 +28,7 @@ function SideBar() {
         ? users.filter((user) => onlineUsers.includes(user._id))
         : users
     ); // 当 users 更新时重新设置
-    console.log("Users updated:", users);
+    console.log("Users updated:", users.length);
   }, [users, onlineUsers, onlineOnly]);
 
   return (
@@ -49,7 +49,7 @@ function SideBar() {
           </label>
           <div className="text-primary">仅显示在线</div>
           <div className="text-xs text-base-content/80">
-            {onlineUsers.length + " 人在线"}
+            {onlineUsers.length - 1 + " 人在线"}
           </div>
         </div>
       </div>
@@ -63,17 +63,20 @@ function SideBar() {
                 selectedUser?._id == user._id ? "bg-base-100/80" : ""
               }`}
             >
-              <img
-                src={user.profilePic || "/avatar.png"}
-                alt={user.username}
-                className="w-10 h-10 rounded-full"
-              />
-              {onlineUsers.includes(user._id) && (
-                <span
-                  className="absolute bottom-0 right-0 size-3 bg-green-500 
-                rounded-full ring-2 ring-zinc-900"
+              <div className="relative mx-auto lg:mx-0">
+                <img
+                  src={user.profilePic || "/avatar.png"}
+                  alt={user.username}
+                  className="w-10 h-10 rounded-full"
                 />
-              )}
+
+                {onlineUsers.includes(user._id) && (
+                  <span
+                    className="absolute bottom-0 right-0 size-3 bg-green-500 
+                rounded-full"
+                  />
+                )}
+              </div>
               <div className="overflow-hidden  whitespace-nowrap">
                 <div className="w-full text-md overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-primary">
                   {user.fullName}
