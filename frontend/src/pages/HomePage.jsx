@@ -10,7 +10,7 @@ const HomePage = () => {
   const { selectedUser } = useChatStore();
 
   return (
-    <div className="min-h-screen px-16 pt-16 pb-5 flex flex-col">
+    <div className="min-h-screen md:px-16 pt-16 pb-5 flex flex-col">
       <div className="flex flex-1  bg-base-200 shadow-lg md:mx-10">
         <div className="relative md:w-[30%]">
           {/* Sidebar */}
