@@ -59,15 +59,15 @@ function SideBar() {
             <div
               key={user._id}
               onClick={() => setSelectedUser(user)}
-              className={`flex items-center px-3 py-4 space-x-4 hover:bg-base-200/60 md:hover:bg-base-100/80 cursor-pointer ${
+              className={`flex justify-between items-center px-5 py-4 space-x-4 hover:bg-base-200/60 md:hover:bg-base-100/80 cursor-pointer ${
                 selectedUser?._id == user._id ? "bg-base-100/80" : ""
               }`}
             >
-              <div className="relative w-10 h-10">
+              <div className="relative">
                 <img
                   src={user.profilePic || "/avatar.png"}
                   alt={user.username}
-                  className="w-10 h-10 rounded-full"
+                  className=" w-16  rounded-full"
                 />
 
                 {onlineUsers.includes(user._id) && (
@@ -77,7 +77,7 @@ function SideBar() {
                   />
                 )}
               </div>
-              <div className="w-40 overflow-hidden  whitespace-nowrap">
+              <div className="w-full overflow-hidden  whitespace-nowrap">
                 <div className=" text-md overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-primary">
                   {user.fullName}
                 </div>
