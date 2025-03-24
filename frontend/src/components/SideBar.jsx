@@ -63,7 +63,7 @@ function SideBar() {
                 selectedUser?._id == user._id ? "bg-base-100/80" : ""
               }`}
             >
-              <div className="relative mx-auto lg:mx-0">
+              <div className="relative w-10 h-10">
                 <img
                   src={user.profilePic || "/avatar.png"}
                   alt={user.username}
@@ -77,8 +77,8 @@ function SideBar() {
                   />
                 )}
               </div>
-              <div className="overflow-hidden  whitespace-nowrap">
-                <div className="w-full text-md overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-primary">
+              <div className="w-40 overflow-hidden  whitespace-nowrap">
+                <div className=" text-md overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-primary">
                   {user.fullName}
                 </div>
                 <div

@@ -7,6 +7,7 @@ function MessageInput() {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const { sendMessage, selectedUser } = useChatStore();
+  const [isSending, setIsSending] = useState(false); // 发送状态
 
   // 如果selectedUser改变了，清空输入框
   useEffect(() => {
@@ -19,7 +20,7 @@ function MessageInput() {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
-
+    setIsSending(true); // 开始发送
     try {
       await sendMessage({
         text: text.trim(),
@@ -34,6 +35,8 @@ function MessageInput() {
       //   if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Failed to send message:", error);
+    } finally {
+      setIsSending(false); // 结束发送
     }
   };
 
@@ -106,7 +109,7 @@ function MessageInput() {
         <button
           type="submit"
           className="btn btn-sm btn-circle"
-          disabled={!text.trim() && !imagePreview}
+          disabled={(!text.trim() && !imagePreview) || isSending} // 禁用按钮
         >
           <Send size={22} />
         </button>

@@ -18,7 +18,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen pt-20 ">
-      <div className="bg-base-300 rounded-xl max-w-xl mx-auto  p-6 my-4">
+      <div className="bg-base-300 rounded-xl max-w-xl mx-auto p-6 my-4">
         <div className=" flex justify-center items-center text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="text-2xl font-bold">个人中心</div>
@@ -102,7 +102,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-      <div className="bg-base-300 rounded-xl max-w-xl mx-auto p-6 ">
+      {/* <div className="bg-base-300 rounded-xl max-w-xl mx-auto p-6 ">
         <div>
           <div className="mb-5 text-lg font-bold">Account Information</div>
           <div className=" flex flex-col gap-4">
@@ -110,7 +110,7 @@ const ProfilePage = () => {
             <div>Account Status</div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
