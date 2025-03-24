@@ -87,7 +87,7 @@ function ChatContent() {
   const scrollToBottom = () => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  console.log("message", messages);
+
   return (
     <div className="relative w-full h-[86vh] flex flex-col p-5 flex-1 overflow-auto">
       <ChatHeader />

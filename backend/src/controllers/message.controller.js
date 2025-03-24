@@ -59,19 +59,16 @@ export const getHistoryMessages = async (req, res) => {
         { senderId: userToChatId, receiverId: myId },
       ],
     };
-
     // 如果提供了时间戳，则只获取该时间戳之前的消息
     if (before) {
       query.createdAt = { $lt: new Date(parseInt(before)) };
     }
-
     const messages = await Message.find(query)
       .sort({ createdAt: -1 }) // 按时间倒序排序
-      .limit(parseInt(limit)) // 限制返回数量
-      .sort({ createdAt: 1 }); // 再按时间正序排序，保证消息顺序正确
+      .limit(parseInt(limit)); // 限制返回数量
+    const orderedMessages = messages.reverse();
 
-    console.log("getHistoryMessages", messages);
-    res.status(200).json(messages);
+    res.status(200).json(orderedMessages);
   } catch (error) {
     console.log("Error in getHistoryMessages controller:", error.message);
     res.status(500).json({ message: "Internal Server error" });

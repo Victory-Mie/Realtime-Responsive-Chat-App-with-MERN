@@ -35,7 +35,7 @@ export const useChatStore = create((set, get) => ({
 
   // 获取消息，优先从本地缓存获取，如果本地没有或需要更新则从服务器获取
   getMessages: async (userId) => {
-    set({ isMessageLoading: true });
+    set({ isMessageLoading: true, messages: [] });
     const { currentPage, messagesPerPage } = get();
     const authUser = useAuthStore.getState().authUser;
 
@@ -47,10 +47,8 @@ export const useChatStore = create((set, get) => ({
         currentPage,
         messagesPerPage
       );
-
       // 2. 如果本地有缓存消息，先显示本地消息
       if (localMessages.length > 0) {
-        console.log("从本地缓存获取消息", localMessages);
         set({ messages: localMessages });
         set({ isMessageLoading: false });
 
@@ -59,7 +57,6 @@ export const useChatStore = create((set, get) => ({
           authUser._id,
           userId
         );
-        console.log("最新消息时间戳", latestTimestamp);
         // 更新oldestTimestamp时间戳
         // 获取当前最早消息的时间戳
         const oldestTime = await messageDB.getOldestMessageTimestamp(
@@ -68,12 +65,20 @@ export const useChatStore = create((set, get) => ({
         );
         set({ oldestTimestamp: oldestTime });
         // 4. 后台异步从服务器获取最新消息
-        get().fetchAndUpdateMessages(userId, latestTimestamp);
+        let loadMessages = await get().fetchAndUpdateMessages(
+          userId,
+          latestTimestamp
+        );
+        set({
+          messages: loadMessages
+            ? [...localMessages, ...loadMessages]
+            : [...localMessages],
+        });
       } else {
         console.log("没缓存");
+        set({ oldestTimestamp: 0 });
         // 如果本地没有缓存，直接从服务器获取
-        const loadMessages = await get().loadHistoryMessages(userId);
-        set({ messages: loadMessages ? loadMessages : [] });
+        await get().loadHistoryMessages();
       }
     } catch (error) {
       console.error("获取消息失败:", error);
@@ -124,63 +129,50 @@ export const useChatStore = create((set, get) => ({
 
   // 从服务器加载历史消息
   loadHistoryMessages: async () => {
-    const { selectedUser, messages, isLoadingHistory } = get();
-    if (!selectedUser || isLoadingHistory || messages.length === 0) return;
-
+    const { selectedUser, messages, isLoadingHistory, oldestTimestamp } = get();
+    if (!selectedUser || isLoadingHistory) return;
     set({ isLoadingHistory: true });
-    const authUser = useAuthStore.getState().authUser;
-
+    // const authUser = useAuthStore.getState().authUser;
     try {
-      // 获取当前最早消息的时间戳
-      const oldestTimestamp = await messageDB.getOldestMessageTimestamp(
-        authUser._id,
-        selectedUser._id
-      );
-
-      if (oldestTimestamp === 0) {
-        set({ hasMoreMessages: false, isLoadingHistory: false });
-        return;
-      }
-
       // 从服务器获取更早的消息
       const res = await axiosInstance.get(
         `/message/history/${selectedUser._id}`,
         {
           params: {
-            before: oldestTimestamp,
+            before:
+              oldestTimestamp === 0 ? new Date().getTime() : oldestTimestamp,
             limit: 20, // 每次获取20条历史消息
           },
         }
       );
 
       const historyMessages = res.data;
-      console.log("从服务器获取历史消息", historyMessages);
-
       // 如果没有更多历史消息
       if (historyMessages.length === 0) {
         set({ hasMoreMessages: false, isLoadingHistory: false });
         return;
+      } else if (oldestTimestamp === 0) {
+        // 从无到有加载历史消息，保存到本地数据库
+        await messageDB.saveMessages(historyMessages);
       }
-
-      // 保存到本地数据库
-      await messageDB.saveMessages(historyMessages);
-      console.log("更新消息列表", [...historyMessages, ...messages]);
       // 更新状态，将历史消息添加到当前消息列表前面
       set({
         messages: [...historyMessages, ...messages],
         hasMoreMessages: historyMessages.length >= 20,
         isLoadingHistory: false,
-        oldestTimestamp: historyMessages[historyMessages.length - 1].createdAt,
+        oldestTimestamp: new Date(historyMessages[0].createdAt).getTime(),
       });
+
     } catch (error) {
       console.error("加载历史消息失败:", error);
+      set({ isLoadingHistory: false });
+    } finally {
       set({ isLoadingHistory: false });
     }
   },
 
   // 从服务器获取消息并更新本地缓存
   fetchAndUpdateMessages: async (userId, sinceTimestamp = 0) => {
-    const { messages } = get();
     try {
       // 从服务器获取消息
       const res = await axiosInstance.get(`/message/${userId}`, {
@@ -190,18 +182,18 @@ export const useChatStore = create((set, get) => ({
         },
       });
       const serverMessages = res.data;
-      console.log("从服务器获取消息", serverMessages);
 
       // 保存到本地数据库
       await messageDB.saveMessages(serverMessages);
 
       // 更新状态
       set({
-        messages: [...messages, ...serverMessages],
+        // messages: [...messages, ...serverMessages],
         isMessageLoading: false,
         currentPage: 1,
         // hasMoreMessages: serverMessages.length >= get().messagesPerPage,
       });
+      return serverMessages;
     } catch (error) {
       console.error("从服务器获取消息失败:", error);
       set({ isMessageLoading: false });
