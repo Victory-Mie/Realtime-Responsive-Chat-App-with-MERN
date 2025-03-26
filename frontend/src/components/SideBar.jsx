@@ -59,16 +59,17 @@ function SideBar() {
             <div
               key={user._id}
               onClick={() => setSelectedUser(user)}
-              className={`flex justify-between items-center px-5 py-4 space-x-4 hover:bg-base-200/60 md:hover:bg-base-100/80 cursor-pointer ${
+              className={`flex  justify-between items-center px-5 py-4 space-x-4 hover:bg-base-200/60 md:hover:bg-base-100/80 cursor-pointer ${
                 selectedUser?._id == user._id ? "bg-base-100/80" : ""
               }`}
             >
-              <div className="relative">
-                <img
-                  src={user.profilePic || "/avatar.png"}
-                  alt={user.username}
-                  className=" w-16  rounded-full"
-                />
+              <div className="chat-image avatar">
+                <div className="w-16  rounded-full">
+                  <img
+                    src={user.profilePic || "/avatar.png"}
+                    alt={user.username}
+                  />
+                </div>
 
                 {onlineUsers.includes(user._id) && (
                   <span
