@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 
 const BASE_URL =
   import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
+
 export const useAuthStore = create((set, get) => ({
   authUser: null,
   isSigningUp: false,
@@ -94,13 +95,14 @@ export const useAuthStore = create((set, get) => ({
 
     // io 是 socket.io 库提供的函数，用于创建一个 socket 实例，以连接到指定的服务器。
     // 配置对象中，query 属性用于在连接时向服务器传递查询参数。
-    const socket = io(BASE_URL, {
+    const socket = io(BASE_URL, { 
       query: {
         userId: authUser._id,
       },
     });
     socket.connect();
     set({ socket: socket });
+
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
