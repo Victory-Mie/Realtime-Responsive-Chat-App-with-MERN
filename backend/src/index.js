@@ -1,4 +1,5 @@
 import express from "express";
+import compression from "compression";
 import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./lib/db.js";
@@ -18,6 +19,8 @@ const __dirname = path.resolve();
 app.use(express.json({ limit: "5mb" }));
 
 app.use(cookieParser());
+
+app.use(compression());
 
 app.use(
   cors({
