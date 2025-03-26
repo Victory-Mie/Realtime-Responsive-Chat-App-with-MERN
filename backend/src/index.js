@@ -19,8 +19,18 @@ const __dirname = path.resolve();
 
 //使用express.json()中间件，解析请求体中的json数据
 app.use(express.json({ limit: "5mb" }));
-
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
+// API 路由 - 应该在静态文件处理之前
+// 当有人访问以 '/api/auth' 开头的网址时，使用 authRoutes 中定义的规则处理
+app.use("/api/auth", authRoutes);
+app.use("/api/message", messageRoutes);
 
 // app.use(compression());
 if (process.env.NODE_ENV === "production") {
@@ -29,7 +39,7 @@ if (process.env.NODE_ENV === "production") {
     "/",
     expressStaticGzip(path.join(__dirname, "../frontend/dist"), {
       enableBrotli: true,
-      orderPreference: ["br"], // 优先使用 Brotli 压缩
+      orderPreference: ["br"], // 优先使用 Brotli 压缩，如果不支持 Brotli，则提供 Gzip (.gz) 压缩文件
       serveStatic: {
         maxAge: "7 days", // 开启强缓存 7 天
       },
@@ -42,26 +52,15 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
-
-// 当有人访问以 '/api/auth' 开头的网址时，使用 authRoutes 中定义的规则处理
-app.use("/api/auth", authRoutes);
-app.use("/api/message", messageRoutes);
-
-// 当应用程序在生产环境中运行时（NODE_ENV 为 "production"），
-if (process.env.NODE_ENV === "production") {
-  // Express.js 会使用中间件提供 ../frontend/dist 目录中的静态文件。
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-  // 这个路由处理器会匹配所有的 GET 请求（* 表示所有路径）。
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
+// // 当应用程序在生产环境中运行时（NODE_ENV 为 "production"），
+// if (process.env.NODE_ENV === "production") {
+//   // Express.js 会使用中间件提供 ../frontend/dist 目录中的静态文件。
+//   app.use(express.static(path.join(__dirname, "../frontend/dist")));
+//   // 这个路由处理器会匹配所有的 GET 请求（* 表示所有路径）。
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+//   });
+// }
 // 在 5001 端口启动服务器
 server.listen(PORT, () => {
   console.log("server is running on port:" + PORT);
