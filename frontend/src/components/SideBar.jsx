@@ -64,7 +64,7 @@ function SideBar() {
               }`}
             >
               <div className="chat-image avatar">
-                <div className="w-16  rounded-full">
+                <div className="w-14  rounded-full">
                   <img
                     src={user.profilePic || "/avatar.png"}
                     alt={user.username}
