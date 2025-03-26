@@ -21,5 +21,12 @@ export default defineConfig({
       algorithm: "gzip", // 压缩算法，可选值：'gzip' | 'brotliCompress' | 'deflate' | 'deflateRaw'
       ext: ".gz", // 压缩文件的扩展名
     }),
+    viteCompression({
+      verbose: true,
+      disable: false,
+      threshold: 10240,
+      algorithm: "brotliCompress", // 生成 Brotli
+      ext: ".br",
+    }),
   ],
 });

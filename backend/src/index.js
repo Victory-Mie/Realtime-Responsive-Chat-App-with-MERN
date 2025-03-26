@@ -1,5 +1,6 @@
 import express from "express";
-import compression from "compression";
+// import compression from "compression";
+import expressStaticGzip from "express-static-gzip";
 import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./lib/db.js";
@@ -15,12 +16,31 @@ dotenv.config();
 
 const PORT = process.env.PORT;
 const __dirname = path.resolve();
+
 //使用express.json()中间件，解析请求体中的json数据
 app.use(express.json({ limit: "5mb" }));
 
 app.use(cookieParser());
 
-app.use(compression());
+// app.use(compression());
+if (process.env.NODE_ENV === "production") {
+  // 使用 express-static-gzip 中间件处理预压缩文件
+  app.use(
+    "/",
+    expressStaticGzip(path.join(__dirname, "../frontend/dist"), {
+      enableBrotli: true,
+      orderPreference: ["br"], // 优先使用 Brotli 压缩
+      serveStatic: {
+        maxAge: "7 days", // 开启强缓存 7 天
+      },
+    })
+  );
+
+  // 处理所有其他请求，返回 index.html
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
 
 app.use(
   cors({
